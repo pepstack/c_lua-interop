@@ -93,8 +93,10 @@
 #define strcasecmp _stricmp
 #endif
 
-#define json_lightudata_mask(ludata)                                         \
-    ((void *) ((uintptr_t) (ludata) & ((1UL << 47) - 1)))
+/* (1UL << 47) - 1 = 0x800000000000 - 1 = 0x7FFFFFFFFFFF */
+#define json_lightudata_mask(ludata)  \
+    ((void *) ( (uintptr_t)(ludata) & 0x7FFFFFFFFFFFULL ))
+
 
 static const char * const *json_empty_array;
 static const char * const *json_array;
@@ -249,7 +251,7 @@ static int json_integer_option(lua_State *l, int optindex, int *setting,
     int value;
 
     if (!lua_isnil(l, optindex)) {
-        value = luaL_checkinteger(l, optindex);
+        value = (int) luaL_checkinteger(l, optindex);
         snprintf(errmsg, sizeof(errmsg), "expected integer between %d and %d", min, max);
         luaL_argcheck(l, min <= value && value <= max, 1, errmsg);
         *setting = value;
@@ -518,7 +520,7 @@ static void json_append_string(lua_State *l, strbuf_t *json, int lindex)
      * This buffer is reused constantly for small strings
      * If there are any excess pages, they won't be hit anyway.
      * This gains ~5% speedup. */
-    strbuf_ensure_empty_length(json, len * 6 + 2);
+    strbuf_ensure_empty_length(json, (int)(len * 6 + 2));
 
     strbuf_append_char_unsafe(json, '\"');
     for (i = 0; i < len; i++) {
@@ -553,7 +555,7 @@ static int lua_array_length(lua_State *l, json_config_t *cfg, strbuf_t *json)
             /* Integer >= 1 ? */
             if (floor(k) == k && k >= 1) {
                 if (k > max)
-                    max = k;
+                    max = (int) k;
                 items++;
                 lua_pop(l, 1);
                 continue;
@@ -747,7 +749,7 @@ static void json_append_data(lua_State *l, json_config_t *cfg,
 
     #if LUA_VERSION_NUM > 501
             /* LUA-5.2+ */
-            len = lua_rawlen(l, -1);
+            len = (int) lua_rawlen(l, -1);
     #else
             /* LUA-5.1 */
             len = lua_objlen(l, -1);
@@ -972,7 +974,7 @@ static void json_set_token_error(json_token_t *token, json_parse_t *json,
                                  const char *errtype)
 {
     token->type = T_ERROR;
-    token->index = json->ptr - json->data;
+    token->index = (int)(json->ptr - json->data);
     token->value.string = errtype;
 }
 
@@ -1121,7 +1123,7 @@ static void json_next_token(json_parse_t *json, json_token_t *token)
 
     /* Store location of new token. Required when throwing errors
      * for unexpected tokens (syntax errors). */
-    token->index = json->ptr - json->data;
+    token->index = (int)(json->ptr - json->data);
 
     /* Don't advance the pointer for an error or the end */
     if (token->type == T_ERROR) {
@@ -1375,7 +1377,7 @@ static int json_decode(lua_State *l)
     /* Ensure the temporary buffer can hold the entire string.
      * This means we no longer need to do length checks since the decoded
      * string must be smaller than the entire json string */
-    json.tmp = strbuf_new(json_len);
+    json.tmp = strbuf_new((int)json_len);
 
     json_next_token(&json, &token);
     json_process_value(l, &json, &token);
