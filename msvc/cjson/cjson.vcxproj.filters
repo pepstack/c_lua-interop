@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="lua-cjson-2.1.1">
+      <UniqueIdentifier>{c16f2db8-88cc-4776-b85e-7cf9bcc4132d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\lua-cjson-2.1.1\lua_cjson.c">
+      <Filter>lua-cjson-2.1.1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\lua-cjson-2.1.1\strbuf.c">
+      <Filter>lua-cjson-2.1.1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\lua-cjson-2.1.1\fpconv.c">
+      <Filter>lua-cjson-2.1.1</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\lua-cjson-2.1.1\fpconv.h">
+      <Filter>lua-cjson-2.1.1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua-cjson-2.1.1\strbuf.h">
+      <Filter>lua-cjson-2.1.1</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
